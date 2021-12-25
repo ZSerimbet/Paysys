@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="p-4 h-screen bg-neutral-50">
+  <!-- Кнопки управления -->
+  <div class="flex w-full justify-between mb-8">
+    <div class="">
+      <form method="POST" action="{% url 'account_create_view' %}">
+        {% csrf_token %}
+
+        <select class="px-4 py-2 rounded-lg bg-neutral-100 outline-none" name="currency">
+          <option value="KZT">KZT</option>
+          <option value="USD">USD</option>
+          <option value="EUR">EUR</option>
+        </select>
+        <button class="px-4 py-2 bg-gray-800 shadow-lg shadow-gray-400 hover:shadow-gray-500 hover:bg-gray-700 text-white rounded-lg">
+          Добавить счёт
+        </button>
+      </form>
+    </div>
+    <div class="">
+      <form method="POST" action="{% url 'accounts_erase_view' %}">
+        {% csrf_token %}
+
+        <button class="px-4 py-2 bg-red-700 shadow-lg shadow-red-200 hover:shadow-red-300 hover:bg-red-600 text-white rounded-lg">
+          Удалить все
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Список всех счетов -->
+  <div class="rounded-lg">
+    <h2 class="text-xl mb-2">
+      Список счетов:
+    </h2>
+
+    {% if accounts %}
+      {% for account in accounts %}
+        <div class="flex p-2 border border-dashed mb-2 rounded-lg text-lg justify-between hover:bg-neutral-100">
+          <div class="flex items-center">
+            {% if account.0 == max_kzt_id or account.0 == max_usd_id or account.0 == max_eur_id %}
+              <span class="block rounded-full h-4 w-4 bg-green-400 mr-2 animate-ping absolute">
+                &nbsp;
+              </span>
+              <span class="block rounded-full h-4 w-4 bg-green-400 mr-2 relative">
+                &nbsp;
+              </span>
+            {% endif %}
+
+            <span><a href="{% url 'account_detail_view' uuid=account.2 %}">{{ account.2 }}</a></span>
+          </div>
+          <div class="flex">
+            <div class="font-medium mr-1">{{ account.3 }}</div>
+            <div class="">{{ account.1 }}</div>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="">
+        Нет доступных счетов.
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="p-4 h-screen bg-neutral-50">
+  <!-- Кнопки управления -->
+  <div class="flex w-full justify-between mb-8">
+    <div class="">
+      {% if account.3 > 0 %}
+        <form method="POST" action="{% url 'account_transfer_view' uuid=account.2 %}">
+          {% csrf_token %}
+
+          <input type="hidden" name="currency" value="{{ account.1 }}">
+          <input type="text" name="account" class="px-4 py-2 rounded-lg bg-neutral-100 outline-none border border-dashed" placeholder="UUID кошелька">
+          <input type="number" min="1" max="{{ account.3 }}" class="px-4 py-2 rounded-lg bg-neutral-100 outline-none border border-dashed" placeholder="Сумма" name="amount">
+          <button class="px-4 py-2 bg-gray-800 shadow-lg shadow-gray-400 hover:shadow-gray-500 hover:bg-gray-700 text-white rounded-lg">
+            Перевести
+          </button>
+        </form>
+      {% endif %}
+    </div>
+    <div class="">
+      <form method="POST" action="{% url 'account_refill_view' uuid=account.2 %}">
+        {% csrf_token %}
+
+        <input type="hidden" name="currency" value="{{ account.1 }}">
+        <input type="number" min="1" max="999999" class="px-4 py-2 rounded-lg bg-neutral-100 outline-none border border-dashed" placeholder="Сумма" name="amount" required>
+        <button class="px-4 py-2 bg-blue-700 shadow-lg shadow-blue-200 hover:blue-red-300 hover:bg-blue-600 text-white rounded-lg">
+          Пополнить
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Список всех счетов -->
+  <div class="rounded-lg">
+    <h2 class="text-xl mb-2">
+      Баланс: <span class="font-medium">{{ account.3 }}</span> {{ account.1 }}
+    </h2>
+    <h2 class="text-xl mb-2">
+      <a href="{% url 'accounts_list_view' %}" class="text-cyan-500 underline decoration-sky-100 hover:decoration-sky-200 decoration-2">Главная страница</a> / Список транзакций:
+    </h2>
+
+    {% if transactions %}
+      {% for transaction in transactions %}
+        <div class="flex p-2 border border-dashed mb-2 rounded-lg text-lg justify-between hover:bg-neutral-100">
+          <div class="flex items-center">
+            <span>
+              {% if transaction.1 == "refill" %}
+                Пополнение
+              {% endif %}
+
+              {% if transaction.1 == "writeoff" %}
+                Списание
+              {% endif %}
+            </span>
+          </div>
+          <div class="flex">
+            <div class="font-medium mr-1 {% if transaction.1 == 'refill' %}text-emerald-500{% endif %}{% if transaction.1 == 'writeoff' %}text-red-500{% endif %}">
+              {% if transaction.1 == "refill" %}+{% endif %}
+              {% if transaction.1 == "writeoff" %}-{% endif %}
+              {{ transaction.3 }}
+            </div>
+            <div class="">{{ transaction.2 }}</div>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="">
+        Пока что пусто :)
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
